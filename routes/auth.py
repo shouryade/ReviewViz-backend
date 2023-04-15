@@ -27,10 +27,8 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 60
 
 
 @router.post("/login", response_model=Token)
-async def login_for_access_token(
-    form_data: Annotated[OAuth2PasswordRequestForm, Depends()]
-):
-    user = authenticate_user(form_data.username, form_data.password)
+async def login_for_access_token(email: str = Form(...), password: str = Form(...)):
+    user = authenticate_user(email, password)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -49,13 +47,6 @@ async def read_users_me(
     current_user: Annotated[registerUser, Depends(get_current_user)]
 ):
     return current_user
-
-
-# @router.get("/users/me/items/")
-# async def read_own_items(
-#     current_user: Annotated[registerUser, Depends(get_current_user)]
-# ):
-#     return [{"item_id": "Foo", "owner": current_user.username}]
 
 
 @router.post("/register")
