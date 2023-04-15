@@ -1,6 +1,5 @@
 from fastapi import Depends, APIRouter, HTTPException, status, Form, Request, Response
 from bleach import clean
-from fastapi.security import OAuth2PasswordRequestForm
 from datetime import timedelta
 from pydantic import ValidationError, BaseModel
 from typing import Annotated
