@@ -1,6 +1,6 @@
 import logging
 
-FMT = "[{levelname: ^9}] {name}: {message}"
+FMT = "[{levelname: ^2}]: shourya's-{name}: {message}"
 FORMATS = {
     logging.DEBUG: FMT,
     logging.INFO: f"\33[36m{ FMT}\33[0m",
@@ -22,9 +22,8 @@ class CustomFormatter(logging.Formatter):
 handler = logging.StreamHandler()
 handler.setFormatter(CustomFormatter())
 logging.basicConfig(
-    level=logging.DEBUG,
+    level=logging.INFO,
     handlers=[handler],
 )
 
-
-log = logging.getLogger("coloured-logger")
+log = logging.getLogger("backend-logger")
