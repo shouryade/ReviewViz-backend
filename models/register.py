@@ -3,6 +3,7 @@ from fastapi import Form
 
 
 class registerUser(BaseModel):
-    full_name: str = Form(...)
+    first_name: str = Form(...)
+    last_name: str = Form(...)
     email: str = Form(...)
     password: str = Form(...)
