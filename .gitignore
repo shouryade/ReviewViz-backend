@@ -3,7 +3,7 @@
 __pycache__/
 *.py[cod]
 *$py.class
-
+reviewsthreaded.csv
 # C extensions
 *.so
 
@@ -132,6 +132,7 @@ venv.bak/
 # Spyder project settings
 .spyderproject
 .spyproject
+reviewsthreaded.csv
 
 # Rope project settings
 .ropeproject
