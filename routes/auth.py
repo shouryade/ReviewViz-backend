@@ -13,6 +13,7 @@ from utils import (
     get_current_user,
 )
 
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 
 router = APIRouter(prefix="/v1/auth", tags=["authentication"])
 
@@ -26,8 +27,11 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 60
 
 
 @router.post("/login", response_model=Token)
-async def login_for_access_token(email: str = Form(...), password: str = Form(...)):
-    user = authenticate_user(email, password)
+# async def login_for_access_token(email: str = Form(...), password: str = Form(...)):
+async def login_for_access_token(
+    form_data: Annotated[OAuth2PasswordRequestForm, Depends()]
+):
+    user = authenticate_user(form_data.username, form_data.password)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

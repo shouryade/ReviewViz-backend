@@ -9,6 +9,10 @@ pymongo = {extras = ["srv"], version = "*"}
 python-jose = {extras = ["cryptography"], version = "*"}
 passlib = {extras = ["bcrypt"], version = "*"}
 bleach = "*"
+requests = "*"
+beautifulsoup4 = "*"
+pandas = "*"
+googletrans = "*"
 
 [dev-packages]
 black = "*"
