@@ -27,7 +27,7 @@ def get_headers():
         "User-Agent": random.choice(user_agents),
         "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
         "Referer": "https://www.amazon.in/",
-        "Accept-Language": "en-gb,en-US,en;q=0.7",
+        "Accept-Language": "en-US,en;q=0.5",
         "Accept-Encoding": "gzip, deflate, br",
         "DNT": "1",
         "Connection": "keep-alive",
@@ -45,29 +45,26 @@ def get_headers():
 def scrape_reviews(product_url):
     headers = get_headers()
     response = requests.get(product_url, headers=headers, timeout=10)
-
     html = response.text
-
     soup = BeautifulSoup(html, "html.parser")
     reviews = soup.find_all("div", {"data-hook": "review"})
     result = []
     if len(reviews) != 0:
         for review in reviews:
-            text = review.find("span", {"data-hook": "review-body"}).text.strip()[:-10]
             try:
                 rating = review.find(
                     "i", {"data-hook": "review-star-rating"}
                 ).text.strip()
+                text = review.find("span", {"data-hook": "review-body"}).text.strip()
+
                 result.append({"rating": rating, "text": text})
             except:
                 rating = review.find(
                     "i", {"data-hook": "cmps-review-star-rating"}
                 ).text.strip()
-                text = review.find("span", {"data-hook": "review-body"}).text.strip()[
-                    :-10
-                ]
-                text = translator(text).text
-                result.append({"rating": rating, "text": text})
+                text1 = review.find("span", {"data-hook": "review-body"}).text.strip()
+                text_trans = translator.translate(text1, dest="en").text
+                result.append({"rating": rating, "text": text_trans})
 
     return result
 
@@ -76,15 +73,13 @@ async def scrape_reviews_threaded(product_url):
     start_time = time.time()
     page_urls = [
         product_url
-        + f"/product-reviews/ref=cm_cr_arp_d_paging_btm_next_{i+1}?ie=UTF8&reviewerType=all_reviews&pageNumber={i+1}"
-        for i in range(1, 20)
+        + f"ref=cm_cr_arp_d_paging_btm_next_{i+1}?ie=UTF8&reviewerType=all_reviews&pageNumber={i+1}"
+        for i in range(0, 20)
     ]
     page_urls.append(
-        product_url
-        + f"/product-reviews/ref=cm_cr_dp_d_show_all_btm?ie=UTF8&reviewerType=all_reviews"
+        product_url + f"ref=cm_cr_dp_d_show_all_btm?ie=UTF8&reviewerType=all_reviews"
     )
-
-    with ThreadPoolExecutor(max_workers=25) as executor:
+    with ThreadPoolExecutor(max_workers=50) as executor:
         reviews = list(executor.map(scrape_reviews, page_urls))
     end_time = time.time()
     print(
@@ -129,7 +124,7 @@ async def scrape(
         df = pd.DataFrame(final, columns=["rating", "text"])
         df.to_csv("reviewsthreaded.csv")
 
-        return final[1]
+        return {"ok"}
     else:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
