@@ -1,4 +1,5 @@
 from fastapi import Depends, APIRouter, HTTPException, status, Form, Request, Response
+from fastapi.security import OAuth2PasswordRequestForm
 from bleach import clean
 from datetime import timedelta
 from pydantic import ValidationError, BaseModel
@@ -13,7 +14,6 @@ from utils import (
     get_current_user,
 )
 
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 
 router = APIRouter(prefix="/v1/auth", tags=["authentication"])
 
