@@ -58,11 +58,17 @@ def create_access_token(data: dict, expires_delta: timedelta or None = None):
 
 
 async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
+    jwt_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate access token",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
         headers={"WWW-Authenticate": "Bearer"},
     )
+
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         email: str = payload["email"]
@@ -70,7 +76,7 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
             raise credentials_exception
         token_data = TokenData(email=email)
     except JWTError:
-        raise credentials_exception
+        raise jwt_exception
     user = get_user(email=token_data.email)
     if user is None:
         raise credentials_exception
