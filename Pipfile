@@ -11,8 +11,10 @@ passlib = {extras = ["bcrypt"], version = "*"}
 bleach = "*"
 requests = "*"
 beautifulsoup4 = "*"
-pandas = "*"
 googletrans = "*"
+nltk = "*"
+rake-nltk = "*"
+pandas = "*"
 
 [dev-packages]
 black = "*"
