@@ -5,11 +5,13 @@ import random
 import requests
 from bs4 import BeautifulSoup
 import re
+from fastapi.security import OAuth2PasswordRequestForm
 from typing import Annotated
 from utils import get_current_user
 from models.register import registerUser
 from logger import log
 from googletrans import Translator
+from nlp_utils import sentiment_analysis
 
 translator = Translator()
 
@@ -56,16 +58,23 @@ def scrape_reviews(product_url):
                     "i", {"data-hook": "review-star-rating"}
                 ).text.strip()
                 text = review.find("span", {"data-hook": "review-body"}).text.strip()
-
-                result.append({"rating": rating, "text": text})
+                result.append([rating, text])
             except:
-                rating = review.find(
-                    "i", {"data-hook": "cmps-review-star-rating"}
-                ).text.strip()
-                text1 = review.find("span", {"data-hook": "review-body"}).text.strip()
-                text_trans = translator.translate(text1, dest="en").text
-                result.append({"rating": rating, "text": text_trans})
-
+                try:
+                    rating = review.find(
+                        "i", {"data-hook": "cmps-review-star-rating"}
+                    ).text.strip()
+                    text1 = review.find(
+                        "span", {"data-hook": "review-body"}
+                    ).text.strip()
+                    text_trans = translator.translate(text1, dest="en").text
+                    result.append([rating, text_trans])
+                except AttributeError:
+                    # very possibly could've got ratelimited.
+                    # but can't retry cuz this scraper has to be BLAZINGLY fast!
+                    msg = "Possble ratelimit.Page not scraped."
+                    log.warn(msg=msg)
+                    pass
     return result
 
 
@@ -74,7 +83,7 @@ async def scrape_reviews_threaded(product_url):
     page_urls = [
         product_url
         + f"ref=cm_cr_arp_d_paging_btm_next_{i+1}?ie=UTF8&reviewerType=all_reviews&pageNumber={i+1}"
-        for i in range(0, 20)
+        for i in range(1, 20)
     ]
     page_urls.append(
         product_url + f"ref=cm_cr_dp_d_show_all_btm?ie=UTF8&reviewerType=all_reviews"
@@ -120,11 +129,12 @@ async def scrape(
                     pass
                 else:
                     final.append(review)
+
         print(len(final))
         df = pd.DataFrame(final, columns=["rating", "text"])
         df.to_csv("reviewsthreaded.csv")
-
-        return {"ok"}
+        words = await sentiment_analysis(final)
+        return words
     else:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
