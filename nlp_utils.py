@@ -10,7 +10,7 @@ nltk.data.path.append(curpath)
 
 from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
-from nltk.corpus import wordnet
+# from nltk.corpus import wordnet
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 from rake_nltk import Rake
 from collections import defaultdict
