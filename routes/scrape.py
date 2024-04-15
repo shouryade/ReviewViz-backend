@@ -15,7 +15,7 @@ from nlp_utils import sentiment_analysis
 
 translator = Translator()
 
-import pandas as pd
+# import pandas as pd
 
 
 router = APIRouter(prefix="/v1/scrape", tags=["scraping"])
@@ -131,8 +131,8 @@ async def scrape(
                     final.append(review)
 
         print(len(final))
-        df = pd.DataFrame(final, columns=["rating", "text"])
-        df.to_csv("reviewsthreaded.csv")
+        # df = pd.DataFrame(final, columns=["rating", "text"])
+        # df.to_csv("reviewsthreaded.csv")
         words = await sentiment_analysis(final)
         return words
     else:
